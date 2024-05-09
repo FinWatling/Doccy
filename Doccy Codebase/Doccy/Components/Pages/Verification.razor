@@ -1,0 +1,84 @@
+﻿@page "/Verification"
+@inject NavigationManager navigationManager
+@using DataAccessLibrary.Models
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+@inject AuthService AuthService
+
+<h3>Please verify your email</h3>
+
+<EditForm Model="@verification" OnValidSubmit="VerifyEmail" FormName="Verify">
+    <div class="form-group">
+        <label for="code">Verification Code</label>
+        <InputText @bind-Value="verification.VerificationCode" id="fname" class="form-control custom-input" required />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button @onclick="(await) => ResendVerification()" class="btn btn-primary">Resend Verification</button>
+</EditForm>
+
+@if (message != null)
+{
+    <br />
+    <h3 class="text-danger">@message</h3>
+}
+
+@code {
+
+    UserVerification verification = new UserVerification();
+    private string message;
+    private int userID;
+    private string username;
+    private bool isVerified;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        userID = (await ProtectedSessionStore.GetAsync<int>("userID")).Value;
+        username = (await ProtectedSessionStore.GetAsync<string>("username")).Value;
+        isVerified = (await ProtectedSessionStore.GetAsync<bool>("isVerified")).Value;
+
+        if (username == null)
+        {
+            navigationManager.NavigateTo("/Login");
+        }
+
+        if (isVerified)
+        {
+            navigationManager.NavigateTo("/");
+        }
+
+        StateHasChanged();
+    }
+
+    public async void ResendVerification()
+    {
+        if(await AuthService.RetryVerification(username) == true)
+        {
+            message = "Verification code sent";
+        }
+        else
+        {
+            message = "Verification code failed to send";
+        }
+
+    }
+
+    public async Task VerifyEmail()
+    {
+
+        if(await AuthService.VerifyEmail(username, verification.VerificationCode) == true)
+        {
+            await ProtectedSessionStore.SetAsync("isVerified", true);
+
+            navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            message = "Invalid Verification code.";
+        }
+
+        
+
+    }
+    
+}

@@ -1,0 +1,13 @@
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.csproj.AssemblyReference.cache
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.AssemblyInfoInputs.cache
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.AssemblyInfo.cs
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.csproj.CoreCompileInputs.cache
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.sourcelink.json
+C:\Users\finla\source\repos\Doccy\DataAccess\bin\Release\net8.0\DataAccessLibrary.deps.json
+C:\Users\finla\source\repos\Doccy\DataAccess\bin\Release\net8.0\DataAccessLibrary.dll
+C:\Users\finla\source\repos\Doccy\DataAccess\bin\Release\net8.0\DataAccessLibrary.pdb
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.dll
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\refint\DataAccessLibrary.dll
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\DataAccessLibrary.pdb
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net8.0\ref\DataAccessLibrary.dll

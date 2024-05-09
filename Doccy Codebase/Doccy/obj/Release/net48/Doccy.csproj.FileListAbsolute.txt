@@ -1,0 +1,8 @@
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.csproj.AssemblyReference.cache
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.csproj.SuggestedBindingRedirects.cache
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.exe.config
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.AssemblyInfoInputs.cache
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.AssemblyInfo.cs
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.csproj.CoreCompileInputs.cache
+C:\Users\finla\source\repos\Doccy\Doccy\obj\Release\net48\Doccy.sourcelink.json

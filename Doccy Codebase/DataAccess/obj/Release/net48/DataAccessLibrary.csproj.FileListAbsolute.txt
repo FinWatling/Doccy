@@ -1,0 +1,6 @@
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net48\DataAccessLibrary.csproj.AssemblyReference.cache
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net48\DataAccessLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net48\DataAccessLibrary.AssemblyInfoInputs.cache
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net48\DataAccessLibrary.AssemblyInfo.cs
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net48\DataAccessLibrary.csproj.CoreCompileInputs.cache
+C:\Users\finla\source\repos\Doccy\DataAccess\obj\Release\net48\DataAccessLibrary.sourcelink.json

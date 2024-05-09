@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\finla\\source\\repos\\Doccy\\Doccy\\obj\\Debug\\net8.0-windows\\scopedcss\\projectbundle\\Doccy.bundle.scp.css",
+      "PackagePath": "staticwebassets\\Doccy.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\finla\\source\\repos\\Doccy\\Doccy\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\finla\\source\\repos\\Doccy\\Doccy\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\finla\\source\\repos\\Doccy\\Doccy\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\finla\\source\\repos\\Doccy\\Doccy\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0-windows\\staticwebassets\\msbuild.Doccy.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0-windows\\staticwebassets\\msbuild.build.Doccy.props",
+      "PackagePath": "build\\Doccy.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0-windows\\staticwebassets\\msbuild.buildMultiTargeting.Doccy.props",
+      "PackagePath": "buildMultiTargeting\\Doccy.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0-windows\\staticwebassets\\msbuild.buildTransitive.Doccy.props",
+      "PackagePath": "buildTransitive\\Doccy.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

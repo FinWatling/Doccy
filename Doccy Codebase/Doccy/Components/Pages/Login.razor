@@ -1,0 +1,74 @@
+﻿@page "/login"
+@using DataAccessLibrary.Models
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Log in</PageTitle>
+
+<h3>Log in</h3>
+
+<style>
+    .custom-input {
+        width: 300px; /* Adjust the width as needed */
+    }
+</style>
+
+<EditForm Model="@userLogin" OnValidSubmit="LoginFormSubmitted" FormName="Log In">
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <InputText @bind-Value=userLogin.email id="email" class="form-control custom-input" required />
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText @bind-Value=userLogin.password id="password" type="password" class="form-control custom-input" required />
+    </div>
+    <div>
+        <br />
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</EditForm>
+
+@if (message != null)
+{
+    <br />
+    <h3 class="text-danger">@message</h3>
+}
+
+@code {
+
+    UserLogin userLogin = new UserLogin();
+    private string? message;
+
+    public async Task LoginFormSubmitted()
+    {
+        var LoginResponse = await AuthService.VerifyLogin(userLogin.email, userLogin.password);
+
+        if (LoginResponse != null)
+        {
+            await ProtectedSessionStore.SetAsync("isLoggedIn", true);
+            await ProtectedSessionStore.SetAsync("username", LoginResponse.Email);
+            await ProtectedSessionStore.SetAsync("userID", LoginResponse.UserID);
+
+            if (LoginResponse.EmailVerified == 1)
+            {
+                await ProtectedSessionStore.SetAsync("isVerified", true);
+                NavigationManager.NavigateTo("/", true);
+                // logged in and verified
+            }
+            else
+            {
+                await ProtectedSessionStore.SetAsync("isVerified", false);
+                NavigationManager.NavigateTo("/Verification", true);
+                // logged in but not verified
+            }
+
+           
+        }
+        else
+        {
+            message = "Account not found / Incorrect Password";
+        }
+    }
+}

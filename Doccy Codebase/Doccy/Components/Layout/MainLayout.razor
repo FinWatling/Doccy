@@ -1,0 +1,54 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+
+            @if(isLoggedIn){
+           <p>@username</p>
+                <a @onclick="@LogOut">Log out</a>
+            }  
+
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code{
+
+    bool isLoggedIn;
+    string username;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+            isLoggedIn = (await ProtectedSessionStore.GetAsync<bool>("isLoggedIn")).Value;
+            username = (await ProtectedSessionStore.GetAsync<string>("username")).Value;
+
+            StateHasChanged();
+    }
+
+    private void LogOut()
+    {
+        ProtectedSessionStore.SetAsync("username", null);
+        ProtectedSessionStore.SetAsync("isLoggedIn", false);
+        NavigationManager.NavigateTo("/login", true);
+    }
+
+
+}

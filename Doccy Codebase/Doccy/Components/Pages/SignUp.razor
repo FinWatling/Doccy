@@ -1,0 +1,82 @@
+﻿@page "/signup"
+@using DataAccessLibrary.Models
+@inject AuthService Authservice
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign Up</PageTitle>
+
+<style>
+    .custom-input {
+        width: 300px;
+    }
+</style>
+
+<h3 class="mb-4">Sign Up</h3>
+
+<EditForm Model="@user" OnValidSubmit="FormSubmitted" FormName="SignUp">
+    <div class="form-group">
+        <label for="fname">First Name</label>
+        <InputText @bind-Value="user.FirstName" id="fname" class="form-control custom-input" required />
+    </div>
+    <div class="form-group">
+        <label for="lname">Last Name</label>
+        <InputText @bind-Value="user.LastName" id="lname" class="form-control custom-input" required />
+    </div>
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <InputText @bind-Value="user.Email" id="email" class="form-control custom-input" required />
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText @bind-Value="password" id="password" type="password" class="form-control custom-input" required @oninput="HandlePasswordInput" />
+    </div>
+    <div class="form-group">
+        <label for="retypePassword">Retype Password</label>
+        <InputText @bind-Value="retypePassword" id="retypePassword" type="password" class="form-control custom-input" required @oninput="HandleRetypePasswordInput" />
+    </div>
+    <div class="form-group">
+        <label for="tel">Phone Number</label>
+        <InputText @bind-Value="user.PhoneNumber" id="tel" class="form-control custom-input" required />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@if (message != null)
+{
+    <br />
+    <h3 class="text-danger">@message</h3>
+}
+
+@code {
+    private UserModel user = new UserModel();
+    private string password;
+    private string retypePassword;
+    private string message;
+
+    private void HandlePasswordInput(ChangeEventArgs e) => password = e.Value.ToString();
+    private void HandleRetypePasswordInput(ChangeEventArgs e) => retypePassword = e.Value.ToString();
+
+
+    private async Task FormSubmitted()
+    {
+
+        if (password == retypePassword)
+        {
+
+            bool isRegistered = await Authservice.RegisterAsync(user, password);
+
+            if (isRegistered)
+            {
+                NavigationManager.NavigateTo("/Login");
+            }
+            else
+            {
+                message = "Unable to register, account may already exist with that email.";
+            }
+        } else
+        {
+            message = "Passwords do not match.";
+        }
+    }
+}

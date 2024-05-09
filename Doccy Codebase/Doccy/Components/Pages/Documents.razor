@@ -1,0 +1,361 @@
+﻿@page "/Documents"
+@using Doccy.Communication
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+@inject IEmailService EmailService
+@using DataAccessLibrary
+@using DataAccessLibrary.Models
+@inject IUserData _Userdb
+@inject IDocumentData _Documentdb
+@inject ISharedDocumentData _SharedDocumentdb
+
+<PageTitle>Documents</PageTitle>
+
+<h3>My Documents</h3>
+
+@if (documents is null)
+{
+    <p><em>Loading....</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Document Title</th>
+                <th>Document Type</th>
+                <th>Upload Date</th>
+                <th>Last Edited</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in documents)
+            {
+                <tr>
+                    <td><input type="checkbox" @onchange="eventArgs => { CheckboxClicked(document.DocumentID); }"/></td>
+                    <td>@Path.GetFileNameWithoutExtension(document.DocumentTitle)</td>
+                    <td>@DocumentTypeToEnum(document.DocumentType)</td>
+                    <td>@document.UploadedDT.ToString()</td>
+                    <td>@document.LastEditedDT</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+    <InputFile OnChange="HandleFileUpload" multiple></InputFile>
+    <button @onclick="(await) => DeleteSelectedDocuments()">Delete Selected</button>
+    <button @onclick="(await) => ToggleShare()">Share Selected</button>
+    <button @onclick="(await) => DownloadSelectedDocuments()">Download Selected</button>
+
+    @if (message != null)
+    {
+        <h3>@message</h3>
+    }
+
+    @if (isShareToggled)
+{
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Share Document(s)</h5>
+            <form>
+                <div class="form-group">
+                    <label for="inputEmail">Email Address</label>
+                    <input type="email" class="form-control" id="inputEmail" placeholder="Enter email address" @bind="emailAddress" required />
+                </div>
+                <br />
+                <button @onclick="(await) => ShareSelectedDocuments()" type="submit" class="btn btn-primary">Share</button>
+            </form>
+        </div>
+    </div>
+
+}
+<br />
+<br />
+
+
+
+@if (sharedDocuments != null)
+{
+
+    <h3>Shared Documents</h3>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Document Title</th>
+                <th>Document Type</th>
+                <th>Shared With</th>
+                <th>Share Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in sharedDocuments)
+            {
+                <tr>
+                    <td>@Path.GetFileNameWithoutExtension(document.DocumentTitle)</td>
+                    <td>@DocumentTypeToEnum(document.DocumentType)</td>
+                    <td>@document.SharedWith</td>
+                    <td>@document.ShareDT</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<script>
+    window.downloadFile = (fileName, base64Data) => {
+        const blob = base64toBlob(base64Data);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+
+    function base64toBlob(base64Data) {
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray]);
+    }
+</script>
+
+@code {
+
+    private string? emailAddress;
+    private DateTime expiryDateTime = DateTime.UtcNow.AddDays(1); // Default expiry date is set to tomorrow
+    private List<DocumentModel>? documents;
+    private List<SharedDocumentModel>? sharedDocuments = null;
+    private List<DocumentModel> uploadedDocuments = new List<DocumentModel>();
+    private List<int>? selectedDocuments = null;
+    private bool isShareToggled = false;
+    private string? message;
+    private int? userID;
+    private bool isVerified;
+    private string? username;
+
+    public void CheckboxClicked(int id)
+    {
+        if (selectedDocuments == null)
+        {
+            selectedDocuments = [];
+        }
+
+        if (selectedDocuments.Contains(id))
+        {
+            selectedDocuments.Remove(id);
+        }
+        else
+        {
+            selectedDocuments.Add(id);
+        }
+    }
+
+    public string DocumentTypeToEnum(int documentType)
+    {
+        string stringValue = Enum.GetName(typeof(FileTypes), documentType);
+        return stringValue == null ? "" : stringValue;
+    }
+
+    public void ToggleShare()
+    {
+        isShareToggled = !isShareToggled;
+    }
+
+    public async Task DownloadSelectedDocuments()
+    {
+        if (selectedDocuments.Count == 0 || documents == null)
+        {
+            return;
+        }
+
+        foreach (int documentID in selectedDocuments)
+        {
+            DocumentModel? document = documents.FirstOrDefault(d => d.DocumentID == documentID);
+            if (document != null)
+            {
+                // Convert byte array to base64 string
+                string base64Data = Convert.ToBase64String(document.Data);
+
+                // Call the JavaScript function to trigger the file download (we use JavaScript here because the navigator was not happy with handling file downloads on chrome.)
+                await JSRuntime.InvokeVoidAsync("downloadFile", document.DocumentTitle, base64Data);
+            }
+        }
+    }
+
+    public async void ShareSelectedDocuments()
+    {
+        List<DocumentModel> documentsToShare = [];
+
+        if (selectedDocuments.Count == 0 || documents == null)
+        {
+            return;
+        }
+
+        foreach (int documentID in selectedDocuments)
+        {
+            DocumentModel? document = documents.FirstOrDefault(d => d.DocumentID == documentID);
+
+            if (document != null)
+            {
+
+                documentsToShare.Add(document);
+
+            }
+        }
+
+        username = (await ProtectedSessionStore.GetAsync<string>("username")).Value;
+
+        EmailService.SendEmail(username, emailAddress, documentsToShare);
+
+
+
+        foreach (var document in documentsToShare)
+        {
+            SharedDocumentModel sharedDocumentModel = new SharedDocumentModel();
+
+            sharedDocumentModel.SharedWith = emailAddress;
+            sharedDocumentModel.DocumentTitle = document.DocumentTitle;
+            sharedDocumentModel.DocumentType = document.DocumentType;
+            sharedDocumentModel.Username = username;
+
+            await _SharedDocumentdb.InsertSharedDocument(sharedDocumentModel);
+        }
+
+
+
+    }
+
+    private string GetContentType(string fileName)
+    {
+        string extension = Path.GetExtension(fileName).ToLowerInvariant();
+        switch (extension)
+        {
+            case ".txt":
+                return "text/plain";
+            case ".pdf":
+                return "application/pdf";
+            case ".jpg":
+            case ".jpeg":
+                return "image/jpeg";
+            case ".png":
+                return "image/png";
+            // Add more cases as needed for other file types
+            default:
+                return "application/octet-stream";
+        }
+    }
+
+    protected async Task DeleteSelectedDocuments()
+    {
+        if (selectedDocuments.Count == 0)
+        {
+            return;
+        }
+
+        foreach (int documentID in selectedDocuments )
+        {
+            await _Documentdb.DeleteDocument(documentID);
+        }
+
+        StateHasChanged();
+
+    }
+
+    enum FileTypes
+    {
+        PDF,
+        JPG,
+        IMG,
+        PNG,
+        ERROR
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        userID = (await ProtectedSessionStore.GetAsync<int>("userID")).Value;
+        username = (await ProtectedSessionStore.GetAsync<string>("username")).Value;
+        isVerified = (await ProtectedSessionStore.GetAsync<bool>("isVerified")).Value;
+
+        if (username == null)
+        {
+            navigationManager.NavigateTo("/Login");
+        }
+
+        if (!isVerified)
+        {
+            navigationManager.NavigateTo("/Verification");
+        }
+
+        documents = await _Documentdb.GetAllUserDocuments(userID);
+        sharedDocuments = await _SharedDocumentdb.GetAllUserSharedDocuments(username);
+
+        if (sharedDocuments.Count == 0)
+        {
+            sharedDocuments = null;
+        }
+
+        //TODO: Decrypt Document Data
+
+        StateHasChanged();
+    }
+
+    protected async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        uploadedDocuments = [];
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream(maxAllowedSize: 1024 * 1024 * 500).CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+
+                var document = new DocumentModel
+                {
+                        DocumentTitle = file.Name,
+                        DocumentType = (short)FindDocumentType(file.Name),
+                        UserID = userID,
+                        UploadedDT = DateTime.Now,
+                        LastEditedDT = file.LastModified.UtcDateTime,
+                        Data = fileBytes,
+                        Username = username 
+                };
+
+                if (document.DocumentType != (short)FileTypes.ERROR)
+                {
+                    uploadedDocuments.Add(document);
+                }
+                else
+                {
+                    message = "Document type " + Path.GetExtension(file.Name) + " is not supported.";
+                }
+            }    
+        }
+
+        foreach (var document in uploadedDocuments)
+        {
+            await _Documentdb.InsertDocument(document, username);
+        }
+    }
+
+    private FileTypes FindDocumentType(string fileName)
+    {
+        string ext = Path.GetExtension(fileName);
+
+        if (ext == ".pdf") return FileTypes.PDF;
+        if (ext == ".jpg") return FileTypes.JPG;
+        if (ext == ".png") return FileTypes.PNG;
+
+        return FileTypes.ERROR;
+    }
+}
